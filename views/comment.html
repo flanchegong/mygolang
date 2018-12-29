@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	  <meta charset="UTF-8">
+    <title>评论-闲言轻博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{{template "comm/link.html"}}
+</head>
+<body class="lay-blog">
+	{{template "comm/header.html".}}
+		<div class="container-wrap">
+			<div class="container container-message container-details container-comment">
+					<div class="contar-wrap">
+						<div class="item">
+			                {{template "comm/note_summary_tpl.html" .note }}
+
+						</div>	
+						<form class="layui-form" action="">
+                    <!-- 传入文章的key-->
+                    <input type="hidden" name ="key" value="{{.note.Key}}">
+                    <!-- 传入评论的内容：content-->
+                    <div class="layui-form-item layui-form-text">
+                        <textarea  class="layui-textarea" name="content" style="resize:none" placeholder="写点什么啊"></textarea>
+                    </div>
+                    <div class="btnbox">
+                            <!-- lay-submit lay-filter="comment" 是有layui提供的，用于绑定提交事件 -->
+                            <button lay-submit class="layui-btn" lay-filter="comment" >
+                            确定
+                        </button>
+                    </div>
+                </form>
+            </div>
+    </div>
+</div>
+
+		{{ template "comm/footer.html" .}}
+<script type="text/javascript">
+    layui.use(['form',"jquery","layer"],function () {
+        var form = layui.form,$= layui.jquery,layer = layui.layer;
+        // 监听评论的form表单提交事件。
+        form.on("submit(comment)",function (formdata) {
+            //我们假定评论新增路由的路径为 "/message/new/:key" key是文章的key
+            $.post("/message/new/"+formdata.field.key,{content:formdata.field.content},function (data) {
+                if(data.code ==0){
+                    layer.msg("评论成功！");
+                    //评论成功就 跳转到文章详情页面
+                    setTimeout(function () {
+                        window.location.href = "/details/"+formdata.field.key;
+                    },300)
+                }else{
+                    layer.msg(data.msg);
+                }
+            },"json").error(function () {
+                layer.msg("网络异常")
+            });
+            // 此处一定要return false，阻止浏览器默认事件，如果没有这段代码，form表单提交会直接刷新页面，走浏览器默认事件。
+            return false;
+        })
+    })
+</script>
+
+</body>
+</html>

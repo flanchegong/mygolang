@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	  <meta charset="UTF-8">
+    <title>评论-闲言轻博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{{template "comm/link.html"}}
+</head>
+<body class="lay-blog">
+	{{template "comm/header.html".}}
+		<div class="container-wrap">
+			<div class="container container-message container-details">
+					<div class="contar-wrap">
+						<div class="item">
+							<div class="item-box  layer-photos-demo1 layer-photos-demo">
+    <!--此处为修改-->
+    <!--请注意 后面传的是.note作为通道传给模版-->
+    {{template "comm/note_tpl.html" .note }}
+    <div class="count layui-clear">
+									<span class="pull-left">阅读 <em>100000+</em></span>
+									<!--此处为文章点赞按钮，因此data-type为note ，将文章的key赋值给data-key -->
+                        <span class="pull-right like" data-type="note" data-key="{{.note.Key}}">
+                            <i class="layui-icon layui-icon-praise"></i>
+                            <!--添加样式value，方便后期修改点赞数量 -->
+                            <em class="value">{{.note.Praise}}</em>
+                        </span>
+								</div>
+							</div>
+						</div>	
+						<a name="comment"> </a>
+						<div class="comt layui-clear">
+                <a href="javascript:;" class="pull-left">评论</a>
+                <!--  修改此处页面跳转路径，让页面能够跳转到评论页面  -->
+                <a href="/comment/{{.note.Key}}" class="pull-right">写评论</a>
+
+						</div>
+						<div id="LAY-msg-box">
+    {{range .messages }}
+    <div class="info-item">
+        <img class="info-img" src="/static/images/info-img.png" alt="">
+        <div class="info-text">
+            <p class="title count">
+                <span class="name">{{.User.Name}}</span>
+                <!--此处为评论点赞按钮，因此data-type为message ，将评论的key赋值给data-key -->
+                            <span class="info-img like" data-type="message" data-key="{{.Key}}">
+                                <i class="layui-icon layui-icon-praise"></i>
+                                <!--span是添加的，样式为value，方便后期修改点赞数量 -->
+                                <span class="value">{{.Praise}}</span>
+                            </span>
+            </p>
+            <p class="info-intr">{{.Content}}</p>
+        </div>
+    </div>
+    {{end}}
+</div>
+					</div>
+			</div>
+		</div>
+		{{template "comm/footer.html".}}
+    <script>
+var user = {{.User}};//这儿输出直接就是json对象
+//这儿将文章的信息拼成json对象赋值给note变量
+var note = { userid:{{.note.UserID}},key:{{.note.Key}} };
+layui.use(['util','jquery'], function(){
+        var util = layui.util,$= layui.jquery;
+        //用户必须登陆，
+        //登陆的用户的role必须为0，可以修改文章
+        //登陆的用户的id，必须等于当前文章详情页的文章所属用户的id
+        if(user&& user.id >0&&user.role===0&&user.id ===note.userid){
+            util.fixbar({
+            bar1: '&#xe642;',//编辑的图标
+            bar2:'&#xe640;'  //删除的图标
+            ,click: function(type){
+                console.log(type);
+                if(type === 'bar1'){
+                    //跳转到修改文章的页面
+                    window.location.href="/note/edit/"+note.key
+                }
+                if(type === 'bar2'){
+                $.post("/note/del/"+note.key,function (data) {
+                    if (data.code === 0) {
+                        layer.msg("删除成功");
+                        if (data.action) {
+                            setTimeout(function () {
+                                window.location.href = data.action;
+                            }, 300);
+                        }
+                    } else {
+                        layer.msg("删除失败：" + data.msg);
+                    }
+                }, "json").error(function () {
+                    layer.msg("网络异常")
+                });
+            }
+
+            }
+        });
+        }
+    });
+
+</script>
+</body>
+</html>

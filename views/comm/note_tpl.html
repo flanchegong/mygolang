@@ -1,0 +1,8 @@
+    <div class="item-box  layer-photos-demo1 layer-photos-demo">
+    <h3><a href="details/{{.Key}}">{{.Title}}</a></h3>
+    <h5>发布于：<span>{{date .UpdatedAt "Y-m-d H:i:s"}}</span></h5>
+    <!--原代码是：<p>{{.Summary}}</p>-->
+    <!--go的html模版输出默认是对html标签转义的-->
+    <!--str2html是beego提供的方法，可以将字符串直接输出不转义-->
+    <p>{{str2html .Content}}</p>
+</div>
